@@ -53,7 +53,7 @@ const fetchChats = asyncHandler(async (req, res) => {
         Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
             .populate('users', '-password')
             .populate('latestMessage')
-            .populate('groupAdmin')
+            .populate('groupAdmin', '-password')
             .sort({ updatedAt: -1 })
             .exec()
             .then(async (results) => {
