@@ -138,16 +138,18 @@ const renameGroup = asyncHandler(async (req, res) => {
 // @route   PUT /api/chat/groupadd
 // @access  Protected
 const addToGroup = asyncHandler(async (req, res) => {
-    const { chatId, userId } = req.body
+    const { chatId, userId, isAdminRole = false } = req.body
 
     // check if the requester is admin
-    const isAdmin = await Chat.findOne({
-        _id: chatId,
-        $and: [{ groupAdmin: { $eq: req.user._id } }],
-    })
+    if (isAdminRole) {
+        const isAdmin = await Chat.findOne({
+            _id: chatId,
+            $and: [{ groupAdmin: { $eq: req.user._id } }],
+        })
 
-    if (!isAdmin) {
-        return res.status(400).send({ message: 'Only admin can add member to group' })
+        if (!isAdmin) {
+            return res.status(400).send({ message: 'Only admin can add member to group' })
+        }
     }
 
     // check if member is exist
@@ -182,16 +184,19 @@ const addToGroup = asyncHandler(async (req, res) => {
 // @route   PUT /api/chat/groupremove
 // @access  Protected
 const removeFromGroup = asyncHandler(async (req, res) => {
-    const { chatId, userId } = req.body
+    const { chatId, userId, isAdminRole = false } = req.body
 
     // check if the requester is admin
-    const isAdmin = await Chat.findOne({
-        _id: chatId,
-        $and: [{ groupAdmin: { $eq: req.user._id } }],
-    })
 
-    if (!isAdmin) {
-        return res.status(400).send({ message: 'Only admin can remove member from group' })
+    if (isAdminRole) {
+        const isAdmin = await Chat.findOne({
+            _id: chatId,
+            $and: [{ groupAdmin: { $eq: req.user._id } }],
+        })
+
+        if (!isAdmin) {
+            return res.status(400).send({ message: 'Only admin can remove member from group' })
+        }
     }
 
     // check if member is exist
